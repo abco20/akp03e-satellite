@@ -1,0 +1,46 @@
+[tools]
+cmake = "3.28.3"
+ninja = "1.11.1"
+python = "3.12.11"
+
+[tasks.test]
+description = "Run host unit and integration tests"
+run = "./scripts/host-test.sh"
+
+[tasks.mock]
+description = "Start the mock Companion server"
+run = "python3 tools/mock_companion.py"
+raw = true
+
+[tasks.build]
+description = "Build the ESP32-S3 firmware"
+run = "./scripts/idf-build.sh"
+
+[tasks.menuconfig]
+description = "Configure the ESP32-S3 firmware"
+run = "./scripts/idf.sh set-target esp32s3 && ./scripts/idf.sh menuconfig"
+raw = true
+
+[tasks.flash]
+description = "Flash the firmware (pass idf.py options after --)"
+run = '''
+#!/usr/bin/env sh
+exec ./scripts/idf.sh "$@" flash
+'''
+raw = true
+
+[tasks.monitor]
+description = "Open the serial monitor (pass idf.py options after --)"
+run = '''
+#!/usr/bin/env sh
+exec ./scripts/idf.sh "$@" monitor
+'''
+raw = true
+
+[tasks."flash-monitor"]
+description = "Flash the firmware and open the serial monitor"
+run = '''
+#!/usr/bin/env sh
+exec ./scripts/idf.sh "$@" flash monitor
+'''
+raw = true

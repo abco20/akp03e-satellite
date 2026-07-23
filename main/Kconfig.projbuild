@@ -1,0 +1,82 @@
+menu "AKP03E Satellite"
+
+config AKP03E_WIFI_SSID
+    string "Wi-Fi SSID"
+    default ""
+
+config AKP03E_WIFI_PASSWORD
+    string "Wi-Fi password"
+    default ""
+
+config AKP03E_COMPANION_HOST
+    string "Companion host name or IP address"
+    default "192.168.1.10"
+
+config AKP03E_COMPANION_PORT
+    int "Companion Satellite TCP port"
+    range 1 65535
+    default 16622
+
+config AKP03E_DEVICE_ID
+    string "Satellite session device ID"
+    default "akp03e-esp32"
+
+config AKP03E_DEVICE_SERIAL
+    string "Stable Companion surface serial"
+    default "akp03e:esp32s3"
+
+config AKP03E_PRODUCT_NAME
+    string "Companion surface product name"
+    default "AKP03E ESP32 Satellite"
+
+config AKP03E_INITIAL_BRIGHTNESS
+    int "Initial AKP03E brightness"
+    range 0 100
+    default 60
+
+config AKP03E_USB_INTERFACE
+    int "AKP03E HID interface number (-1 = auto)"
+    range -1 255
+    default 0
+    help
+        Interface 0 is used by the tested AKP03E firmware. Set -1 to select
+        automatically, or override this value when another firmware revision
+        exposes the usable interrupt IN/OUT endpoints on a different interface.
+
+config AKP03E_VBUS_ENABLE_GPIO
+    int "Optional active-high VBUS enable GPIO (-1 = external always-on 5 V)"
+    range -1 48
+    default -1
+    help
+        The ESP32-S3 USB peripheral does not generate 5 V VBUS. Use an external
+        5 V supply or load switch. Set this only when a GPIO controls that switch.
+
+config AKP03E_MAX_JPEG_SIZE
+    int "Maximum cached JPEG bytes per display key"
+    range 4096 16384
+    default 8192
+
+choice AKP03E_IMAGE_ROTATION
+    prompt "Pre-JPEG image rotation"
+    default AKP03E_IMAGE_ROTATION_90_CW
+
+config AKP03E_IMAGE_ROTATION_0
+    bool "0 degrees"
+
+config AKP03E_IMAGE_ROTATION_90_CW
+    bool "90 degrees clockwise"
+
+config AKP03E_IMAGE_ROTATION_180
+    bool "180 degrees"
+
+config AKP03E_IMAGE_ROTATION_270_CW
+    bool "270 degrees clockwise"
+
+endchoice
+
+config AKP03E_JPEG_QUALITY
+    int "JPEG quality"
+    range 1 100
+    default 82
+
+endmenu
