@@ -1,4 +1,5 @@
 #include <memory>
+#include <utility>
 
 #include "esp_err.h"
 #include "esp_log.h"
@@ -6,6 +7,8 @@
 
 #include "akp03e_usb.hpp"
 #include "companion_client.hpp"
+#include "device_config.hpp"
+#include "serial_config_console.hpp"
 #include "surface_state.hpp"
 #include "wifi_manager.hpp"
 
@@ -22,13 +25,29 @@ extern "C" void app_main() {
         ESP_ERROR_CHECK(err);
     }
 
+    static DeviceConfigStore config_store;
+    static SerialConfigConsole config_console(config_store);
+    ESP_ERROR_CHECK(config_console.start());
+
+    DeviceConfig config;
+    ESP_ERROR_CHECK(config_store.load(config));
+    if (!config.complete()) {
+        ESP_LOGW(kTag, "configuration required; use the serial console");
+        return;
+    }
+
     static SurfaceState surface_state;
     static WifiManager wifi;
     static Akp03eUsb usb(surface_state);
-    static CompanionClient companion(wifi, surface_state, usb.input_queue());
+    static CompanionClient companion(
+        wifi,
+        surface_state,
+        usb.input_queue(),
+        std::move(config.companion_host),
+        config.companion_port);
 
     ESP_LOGI(kTag, "starting Wi-Fi");
-    ESP_ERROR_CHECK(wifi.start());
+    ESP_ERROR_CHECK(wifi.start(config.wifi_ssid, config.wifi_password));
 
     ESP_LOGI(kTag, "starting USB host and AKP03E client");
     ESP_ERROR_CHECK(usb.start());

@@ -17,7 +17,12 @@
 
 class CompanionClient {
 public:
-    CompanionClient(WifiManager& wifi, SurfaceState& surface, QueueHandle_t input_queue);
+    CompanionClient(
+        WifiManager& wifi,
+        SurfaceState& surface,
+        QueueHandle_t input_queue,
+        std::string host,
+        std::uint16_t port);
     esp_err_t start();
 
 private:
@@ -33,6 +38,8 @@ private:
     WifiManager& wifi_;
     SurfaceState& surface_;
     QueueHandle_t input_queue_{};
+    std::string host_;
+    std::uint16_t port_{};
     TaskHandle_t task_{};
     JpegEncoder encoder_{};
     SurfaceState::ImageUpdate encode_buffer_{};
