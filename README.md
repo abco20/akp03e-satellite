@@ -18,10 +18,25 @@ mise run build
 mise run flash-monitor -- -p /dev/ttyUSB0
 ```
 
-In `menuconfig`, set the Wi-Fi credentials and Companion host under
-`AKP03E Satellite`. Connect the AKP03E to the ESP32-S3 USB host pins with a
-shared ground and a stable external 5 V VBUS supply. The surface registers
-automatically when the firmware connects to Companion.
+`menuconfig` contains only build-time device and hardware options; network
+credentials are not compiled into the firmware.
+
+On first boot, configure the device through the external USB-UART serial
+console used for flashing and logs:
+
+```text
+wifi set "YOUR SSID" "YOUR PASSWORD"
+companion set 192.168.1.10 16622
+```
+
+The device stores the settings in NVS and restarts automatically after both
+commands have been entered. The firmware contains no fallback Wi-Fi or
+Companion connection settings. Use `config show` to inspect the saved settings
+(the password is never displayed), or `config reset` to erase them.
+
+Connect the AKP03E to the ESP32-S3 USB host pins with a shared ground and a
+stable external 5 V VBUS supply. The surface registers automatically when the
+firmware connects to Companion.
 
 ## License
 

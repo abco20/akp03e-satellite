@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 #include "esp_err.h"
 #include "esp_event.h"
@@ -11,7 +12,7 @@ class WifiManager {
 public:
     static constexpr EventBits_t kConnectedBit = BIT0;
 
-    esp_err_t start();
+    esp_err_t start(std::string_view ssid, std::string_view password);
     EventGroupHandle_t events() const noexcept { return events_; }
 
 private:

@@ -23,8 +23,16 @@ The ESP32-S3 acts only as a network-attached surface adapter.
 - `surface_state`: Latest-wins cache for six JPEG images and brightness.
 - `companion_protocol`: Pure Companion Satellite line protocol.
 - `companion_client`: Wi-Fi TCP session, bitmap decoding, and surface registration.
+- `device_config`: NVS-backed Wi-Fi/Companion settings and the serial configuration console.
 - `jpeg_encoder` / `image_transform`: RGB888 rotation and JPEG encoding.
 - `wifi_manager`: Wi-Fi station lifecycle.
+
+## Runtime configuration
+
+The application contains no compiled-in network fallback. On first boot it
+waits for Wi-Fi and Companion settings to be entered through the external
+USB-UART console. Settings are stored in the `akp03e_cfg` NVS namespace. The
+network and USB surface tasks start only after both settings are present.
 
 ## Ownership rules
 

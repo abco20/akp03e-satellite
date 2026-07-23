@@ -5,6 +5,7 @@
 #include <charconv>
 #include <fcntl.h>
 #include <string_view>
+#include <utility>
 
 #include "sdkconfig.h"
 #include "esp_log.h"
@@ -44,8 +45,17 @@ bool supports_required_api(std::string_view version) {
 }
 }
 
-CompanionClient::CompanionClient(WifiManager& wifi, SurfaceState& surface, QueueHandle_t input_queue)
-    : wifi_(wifi), surface_(surface), input_queue_(input_queue) {}
+CompanionClient::CompanionClient(
+    WifiManager& wifi,
+    SurfaceState& surface,
+    QueueHandle_t input_queue,
+    std::string host,
+    std::uint16_t port)
+    : wifi_(wifi),
+      surface_(surface),
+      input_queue_(input_queue),
+      host_(std::move(host)),
+      port_(port) {}
 
 esp_err_t CompanionClient::start() {
     if (!encoder_.ready()) {
@@ -74,7 +84,7 @@ void CompanionClient::run() {
             continue;
         }
 
-        ESP_LOGI(kTag, "connected to %s:%d", CONFIG_AKP03E_COMPANION_HOST, CONFIG_AKP03E_COMPANION_PORT);
+        ESP_LOGI(kTag, "connected to %s:%u", host_.c_str(), port_);
         backoff_ms = 1000;
         session(fd);
         shutdown(fd, SHUT_RDWR);
@@ -89,8 +99,8 @@ int CompanionClient::connect_socket() {
     hints.ai_socktype = SOCK_STREAM;
 
     addrinfo* addresses = nullptr;
-    const auto port = std::to_string(CONFIG_AKP03E_COMPANION_PORT);
-    const int result = getaddrinfo(CONFIG_AKP03E_COMPANION_HOST, port.c_str(), &hints, &addresses);
+    const auto port = std::to_string(port_);
+    const int result = getaddrinfo(host_.c_str(), port.c_str(), &hints, &addresses);
     if (result != 0) {
         ESP_LOGW(kTag, "getaddrinfo failed: %d", result);
         return -1;

@@ -1,22 +1,5 @@
 menu "AKP03E Satellite"
 
-config AKP03E_WIFI_SSID
-    string "Wi-Fi SSID"
-    default ""
-
-config AKP03E_WIFI_PASSWORD
-    string "Wi-Fi password"
-    default ""
-
-config AKP03E_COMPANION_HOST
-    string "Companion host name or IP address"
-    default "192.168.1.10"
-
-config AKP03E_COMPANION_PORT
-    int "Companion Satellite TCP port"
-    range 1 65535
-    default 16622
-
 config AKP03E_DEVICE_ID
     string "Satellite session device ID"
     default "akp03e-esp32"

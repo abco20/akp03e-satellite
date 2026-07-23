@@ -2,7 +2,6 @@
 
 #include <cstring>
 
-#include "sdkconfig.h"
 #include "esp_check.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -13,7 +12,12 @@ namespace {
 constexpr char kTag[] = "wifi";
 }
 
-esp_err_t WifiManager::start() {
+esp_err_t WifiManager::start(std::string_view ssid, std::string_view password) {
+    if (ssid.empty() || ssid.size() > sizeof(wifi_sta_config_t::ssid) ||
+        password.size() > sizeof(wifi_sta_config_t::password)) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
     events_ = xEventGroupCreate();
     if (events_ == nullptr) {
         return ESP_ERR_NO_MEM;
@@ -30,6 +34,7 @@ esp_err_t WifiManager::start() {
 
     wifi_init_config_t init_config = WIFI_INIT_CONFIG_DEFAULT();
     ESP_RETURN_ON_ERROR(esp_wifi_init(&init_config), kTag, "esp_wifi_init");
+    ESP_RETURN_ON_ERROR(esp_wifi_set_storage(WIFI_STORAGE_RAM), kTag, "set RAM storage");
     ESP_RETURN_ON_ERROR(
         esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &WifiManager::event_handler, this),
         kTag, "register Wi-Fi handler");
@@ -38,10 +43,8 @@ esp_err_t WifiManager::start() {
         kTag, "register IP handler");
 
     wifi_config_t config{};
-    static_assert(sizeof(CONFIG_AKP03E_WIFI_SSID) <= sizeof(config.sta.ssid));
-    static_assert(sizeof(CONFIG_AKP03E_WIFI_PASSWORD) <= sizeof(config.sta.password));
-    std::memcpy(config.sta.ssid, CONFIG_AKP03E_WIFI_SSID, sizeof(CONFIG_AKP03E_WIFI_SSID));
-    std::memcpy(config.sta.password, CONFIG_AKP03E_WIFI_PASSWORD, sizeof(CONFIG_AKP03E_WIFI_PASSWORD));
+    std::memcpy(config.sta.ssid, ssid.data(), ssid.size());
+    std::memcpy(config.sta.password, password.data(), password.size());
     config.sta.threshold.authmode = WIFI_AUTH_OPEN;
     config.sta.pmf_cfg.capable = true;
     config.sta.pmf_cfg.required = false;

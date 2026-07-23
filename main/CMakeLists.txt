@@ -4,6 +4,7 @@ idf_component_register(
     REQUIRES
         akp03e_usb
         companion_client
+        device_config
         surface_state
         wifi_manager
         nvs_flash
